@@ -64,7 +64,7 @@ function playGame(){
 	let movePiece = function(piece){
 		//when a piece is selected
 		//check it's coordinate points.
-		console.log('position',board[piece]);
+		console.log('position', board[piece]);
 		//possible moves;
 		let moves = [[0, 1],[0, -1],[1,0],[-1,0]];
 		let newPosition = [];
@@ -72,19 +72,13 @@ function playGame(){
 			let x = [];
 			x.push(parseInt(moves[pos][0]) + parseInt(board[piece][0]));
 			x.push(parseInt(moves[pos][1]) + parseInt(board[piece][1]));
-			if (board._[0] === x[0] && board._[1]=== x[1]){
+			console.log(x);
+			if (board._[0] === x[0] && board._[1] === x[1]){
 				newPosition = x;
-				break;
-			} else {
-				newPosition = null;
+				return newPosition;
 			}
 		}//end for
-		if (newPosition){
-			board._ = board[piece];
-			board[piece] = newPosition;
-		} else {
-			console.log("can't go there");
-		}
+		return null;
 	};//end movePiece
 
 	//pretty print the board to the console.
@@ -99,20 +93,34 @@ function playGame(){
 		boardPrint.forEach(function(x){
 			let node = document.createElement('div');
 			node.setAttribute('id', 'square');
-			node.setAttribute('class',x);
+			
 
 			if (x == '_'){
 				node.setAttribute('class','empty');
 			}
 			let textNode = document.createTextNode(x);
 			node.appendChild(textNode);
+
 			node.addEventListener('click', function(e){
-				movePiece(this.textContent);
+				console.log(this.textContent);
+				let newPosition = movePiece(this.textContent);
+
+				if (newPosition){
+					board._ = board[this.textContent];
+					board[this.textContent] = newPosition;
+
+					document.getElementsByClassName('empty')[0].textContent = this.textContent;
+					document.getElementsByClassName('empty')[0].removeAttribute('class');
+
+					this.setAttribute('class', 'empty');
+					this.textContent = '_';
+				} else {
+					console.log("can't go there");
+				}
+
 				//I want to just update the squares that changed.
-				document.getElementsByClassName('empty');
-				this.setAttribute('class','empty');
-				if (this.getAttribute('class') !== this.textContent)
-					console.log('change');
+				
+				
 				//displayBoard();
 			});
 			document.getElementById('game').appendChild(node);
