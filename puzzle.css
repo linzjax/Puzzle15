@@ -26,32 +26,4 @@
 .empty {
 	width: 0;
 	background-color: black !important;
-	animation-duration: 1s;
-	animation-name: goaway;
-}
-#square:active {
-	animation-duration: 1s;
-  	animation-name: slide;
-}
-
-
-@keyframes goaway {
-	from {
-		width: 25%;
-	}
-	to {
-		width: 0;
-	}
-}
-  
-
-@keyframes slide {
-  from {
-    margin-left: 0;
-  }
-
-  to {
-    margin-left: -100px;
-   	overflow: hidden;
-  }
 }

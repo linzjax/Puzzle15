@@ -1,4 +1,21 @@
+/*To do:
+- add a counter
+- calculate a win
+- enable drag and drop
+- enable arrow functions
+- rescale based on a given number
+*/
+
 'use strict';
+
+/*So how would I calculate a board
+it's the square root of the big number. So Puzzle 15 + 1
+
+*/
+
+
+
+
 let win = {
 	1: [0,0],
 	2: [1,0],
@@ -21,7 +38,6 @@ let win = {
 
 
 let board = {};
-
 
 function playGame(){
 	let positions = [[0,0],[1,0],[2,0],[3,0],
@@ -64,15 +80,16 @@ function playGame(){
 	let movePiece = function(piece){
 		//when a piece is selected
 		//check it's coordinate points.
-		console.log('position', board[piece]);
 		//possible moves;
 		let moves = [[0, 1],[0, -1],[1,0],[-1,0]];
 		let newPosition = [];
 		for (let pos in moves){
+
 			let x = [];
 			x.push(parseInt(moves[pos][0]) + parseInt(board[piece][0]));
 			x.push(parseInt(moves[pos][1]) + parseInt(board[piece][1]));
-			console.log(x);
+
+			//do the coordiates of the empty space match any of the possible moves?
 			if (board._[0] === x[0] && board._[1] === x[1]){
 				newPosition = x;
 				return newPosition;
