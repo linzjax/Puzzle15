@@ -111,14 +111,19 @@ function playGame(givenNum){
 		boardPrint.forEach(function(x){
 			var dimensions = Math.sqrt(givenNum + 1);
 
-			document.getElementById('game').style.width = dimensions * 100 + 'px';
-			document.getElementById('game').style.height = dimensions * 100 + 'px';
-			document.getElementById('counter').style.width = dimensions * 100 + 'px';
+			// document.getElementById('game').style.width = dimensions * 100 + 'px';
+			// document.getElementById('game').style.height = dimensions * 100 + 'px';
+			// document.getElementById('counter').style.width = dimensions * 100 + 'px';
+
+			document.getElementById('game').style.width = '606px';
+			document.getElementById('game').style.height = '606px';
+			document.getElementById('counter').style.width = '50%';
 			
 			var node = document.createElement('div');
 			node.setAttribute('id', 'square');
 			node.style.width = (100/(Math.floor(dimensions))) + '%';
 			node.style.height = (100/(Math.floor(dimensions))) + '%';
+			node.style.paddingTop = (600/dimensions/2 - 15) + 'px';
 			
 			if (x == 'empty')
 				node.setAttribute('class','empty');
@@ -135,7 +140,7 @@ function playGame(givenNum){
 
 					document.getElementsByClassName('empty')[0].textContent = this.textContent;
 					document.getElementsByClassName('empty')[0].removeAttribute('class');
-					
+
 					if(calculateWin()){
 						document.getElementById('moves').textContent = "You won! It took you " + counter + " moves.";
 						//this.setAttribute('class', 'empty');
@@ -170,7 +175,7 @@ function playGame(givenNum){
 
 
 
-playGame(2*2 -1);
+playGame(4*4 -1);
 
 
 
