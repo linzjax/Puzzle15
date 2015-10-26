@@ -111,19 +111,13 @@ function playGame(givenNum){
 		boardPrint.forEach(function(x){
 			var dimensions = Math.sqrt(givenNum + 1);
 
-			// document.getElementById('game').style.width = dimensions * 100 + 'px';
-			// document.getElementById('game').style.height = dimensions * 100 + 'px';
-			// document.getElementById('counter').style.width = dimensions * 100 + 'px';
-
-			document.getElementById('game').style.width = '606px';
-			document.getElementById('game').style.height = '606px';
 			document.getElementById('counter').style.width = '50%';
 			
 			var node = document.createElement('div');
 			node.setAttribute('id', 'square');
 			node.style.width = (100/(Math.floor(dimensions))) + '%';
 			node.style.height = (100/(Math.floor(dimensions))) + '%';
-			node.style.paddingTop = (600/dimensions/2 - 15) + 'px';
+			node.style.padding = (100/dimensions/4) + '%';
 			
 			if (x == 'empty')
 				node.setAttribute('class','empty');
