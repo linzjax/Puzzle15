@@ -1,66 +1,50 @@
 /*To do:
-- add a counter
-- calculate a win
+
 - enable drag and drop
 - enable arrow functions
-- rescale based on a given number
+
 */
 
 'use strict';
 
-/*So how would I calculate a board
-it's the square root of the big number. So Puzzle 15 + 1
-
-*/
-
-
-
-
-let win = {
-	1: [0,0],
-	2: [1,0],
-	3: [2,0],
-	4: [3,0],
-	5: [0,1],
-	6: [1,1],
-	7: [2,1],
-	8: [3,1],
-	9: [0,2],
-	10: [1,2],
-	11: [2,2],
-	12: [3,2],
-	13: [0,3],
-	14: [1,3],
-	15: [2,3],
-	_: [3,3],
-};
-
-
-
-let board = {};
-
-function playGame(){
-	let positions = [[0,0],[1,0],[2,0],[3,0],
-					[0,1],[1,1],[2,1],[3,1],
-					[0,2],[1,2],[2,2],[3,2],
-					[0,3],[1,3],[2,3],[3,3]];
-
-	//reverse lookup keys from coordinate positions;
-	function findValue(obj, value){
-        for (let key in obj){
-            if (obj[key][0] === value[0] && obj[key][1]=== value[1]) {
-              return key;
-            }
-        }
-    }//end findValue;
+//creates the win dictionary, and determines what coordinates are available
+function boardSize(givenNum){
+	var fullSize = givenNum + 1,
+		rowSize = Math.floor(Math.sqrt(fullSize)),
+		positions = [],
+		win = {};
 	
+	for (var x = 0; x < rowSize; x++){
+		for (var y = 0; y < rowSize; y++){
+			positions.push([x, y])
+		}
+	}//end coordinates creation;
+
+	for (var x = 1; x < fullSize; x++){
+		win[x] = positions[x-1];
+	}//end dictionary creation;
+
+	win.empty = positions[givenNum];
+	return [win, positions];
+}//end boardSize;
+
+
+
+
+function playGame(givenNum){
+	var positions = boardSize(givenNum)[1],
+		win = boardSize(givenNum)[0],
+		board = {},
+		counter = 0;
+
 	//randomly select key in board;
 	function randomPosition(){
-		let x = Math.ceil(Math.random() * 15);
+		var x = Math.ceil(Math.random() * givenNum);
 
-		//if the key is available, place value;
+		//if the key is unassigned, place value;
 		if (!board[x]) {
 			board[x] = positions.shift();
+			return;
 		}
 		//else try again
 		else {
@@ -68,83 +52,112 @@ function playGame(){
 		}
 	}//end randomPosition;
 
-	//set all pieces;
+	//create a dictionary with keys assigned to a random coordinate;
 	function setBoard(){
-		while (Object.keys(board).length < 15) {
+		while (Object.keys(board).length < givenNum)
 			randomPosition();
-		}
-		board._ = positions.shift();
+		board.empty = positions.shift();
 	}//end setBoard;
 
-	//updates the dictionary position of the piece.
-	let movePiece = function(piece){
-		//when a piece is selected
-		//check it's coordinate points.
-		//possible moves;
-		let moves = [[0, 1],[0, -1],[1,0],[-1,0]];
-		let newPosition = [];
-		for (let pos in moves){
 
-			let x = [];
+	//updates the dictionary position of the piece.
+	function movePiece(piece){
+		var moves = [[0, 1],[0, -1],[1,0],[-1,0]];
+		var newPosition = [];
+
+		for (var pos in moves){
+			var x = [];
 			x.push(parseInt(moves[pos][0]) + parseInt(board[piece][0]));
 			x.push(parseInt(moves[pos][1]) + parseInt(board[piece][1]));
-
+			
 			//do the coordiates of the empty space match any of the possible moves?
-			if (board._[0] === x[0] && board._[1] === x[1]){
+			if (board.empty[0] === x[0] && board.empty[1] === x[1]){
 				newPosition = x;
+				counter++;
 				return newPosition;
 			}
 		}//end for
 		return null;
 	};//end movePiece
 
+	//determine if all the pieces are in the correct position.
+	function calculateWin(){
+		var x = 0;
+		for (var key in board){
+			if (board[key][0] === win[key][0] && board[key][1] === win[key][1]) {
+				x++;
+			}
+			else {
+				return false;
+			}
+		}
+		if (x == givenNum + 1) {
+			return true;
+		}
+	}
+
 	//pretty print the board to the console.
 	function displayBoard(){
-		let boardPrint = [];
-		//working down the win structure, if 
+		var boardPrint = [];
 
-		for (let key in win){
-			boardPrint.push(findValue(board, win[key]));
+		//keys are in order. Coordinates are not. Add keys to be printed in the correct coordinates order.
+		for (var winKey in win){
+			for (var key in board){
+				if (board[key][0] === win[winKey][0] && board[key][1] === win[winKey][1])
+					boardPrint.push(key);
+			}
+			
 		}
 
 		boardPrint.forEach(function(x){
-			let node = document.createElement('div');
-			node.setAttribute('id', 'square');
+			var dimensions = Math.sqrt(givenNum + 1);
 			
-
-			if (x == '_'){
+			var node = document.createElement('div');
+			node.setAttribute('id', 'square');
+			node.style.width = (100/dimensions) + '%';
+			node.style.height = (100/dimensions) + '%';
+			node.style.padding = (100/dimensions/4) + '%';
+			
+			if (x == 'empty')
 				node.setAttribute('class','empty');
-			}
-			let textNode = document.createTextNode(x);
+
+			var textNode = document.createTextNode(x);
 			node.appendChild(textNode);
 
 			node.addEventListener('click', function(e){
-				console.log(this.textContent);
-				let newPosition = movePiece(this.textContent);
+				var newPosition = movePiece(this.textContent);
 
 				if (newPosition){
-					board._ = board[this.textContent];
+					board.empty = board[this.textContent];
 					board[this.textContent] = newPosition;
 
 					document.getElementsByClassName('empty')[0].textContent = this.textContent;
 					document.getElementsByClassName('empty')[0].removeAttribute('class');
 
+					if(calculateWin()){
+						document.getElementById('moves').textContent = "You won! It took you " + counter + " moves.";
+						//this.setAttribute('class', 'empty');
+						this.textContent = givenNum + 1;
+						return;
+					} else {
+						document.getElementById('counter').textContent = counter;
+					}
 					this.setAttribute('class', 'empty');
-					this.textContent = '_';
+					this.textContent = 'empty';
 				} else {
 					console.log("can't go there");
 				}
-
-				//I want to just update the squares that changed.
-				
 				
 				//displayBoard();
 			});
+
 			document.getElementById('game').appendChild(node);
+			
+
 
 		});
-
-		
+		var displayCounter = document.createTextNode(counter);
+		document.getElementById('counter').appendChild(displayCounter)
 	}
 
 	
@@ -155,7 +168,7 @@ function playGame(){
 
 
 
-playGame();
+playGame(4*4 -1);
 
 
 
