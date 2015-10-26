@@ -110,13 +110,11 @@ function playGame(givenNum){
 
 		boardPrint.forEach(function(x){
 			var dimensions = Math.sqrt(givenNum + 1);
-
-			document.getElementById('counter').style.width = '50%';
 			
 			var node = document.createElement('div');
 			node.setAttribute('id', 'square');
-			node.style.width = (100/(Math.floor(dimensions))) + '%';
-			node.style.height = (100/(Math.floor(dimensions))) + '%';
+			node.style.width = (100/dimensions) + '%';
+			node.style.height = (100/dimensions) + '%';
 			node.style.padding = (100/dimensions/4) + '%';
 			
 			if (x == 'empty')
