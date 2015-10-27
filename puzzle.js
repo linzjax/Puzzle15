@@ -156,4 +156,4 @@ function playGame(givenNum) {
 }
 
 
-playGame(3);
+playGame(15);
