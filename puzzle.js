@@ -1,175 +1,159 @@
-/*To do:
+function playGame(givenNum) {
+	var rowSize = Math.sqrt(givenNum + 1);
 
-- enable drag and drop
-- enable arrow functions
+	//all possible coordinates
+	var positions = boardSize(givenNum)[1];
 
-*/
+	//the order the coordinates need to be in
+	var win = boardSize(givenNum)[0];
+	var board = {};
+	var movesCounter = 0;
 
-'use strict';
+	//creates the win dictionary, and determines what coordinates are available given the size of the board
+	function boardSize(givenNum) {
+		var fullSize = givenNum + 1;
+		var	positions = [];
+		var	win = {};
 
-//creates the win dictionary, and determines what coordinates are available
-function boardSize(givenNum){
-	var fullSize = givenNum + 1,
-		rowSize = Math.floor(Math.sqrt(fullSize)),
-		positions = [],
-		win = {};
-	
-	for (var x = 0; x < rowSize; x++){
-		for (var y = 0; y < rowSize; y++){
-			positions.push([x, y])
-		}
-	}//end coordinates creation;
+		//creates all possible coordinate points
+		for (var yCord = 0; yCord < rowSize; yCord++) {
+			for (var xCord = 0; xCord < rowSize; xCord++) {
+				positions.push([xCord, yCord]);
+			}
+		}//end coordinates creation;
 
-	for (var x = 1; x < fullSize; x++){
-		win[x] = positions[x-1];
-	}//end dictionary creation;
+		//creates the winning dictionary with keys assigned to coordinates
+		for (var key = 1; key < fullSize; key++) {
+			win[key] = positions[key - 1];
+		}//end dictionary creation;
 
-	win.empty = positions[givenNum];
-	return [win, positions];
-}//end boardSize;
+		//the blank space will always be at the end
+		win.empty = positions[givenNum];
+		return [win, positions];
+	}//end boardSize;
 
-
-
-
-function playGame(givenNum){
-	var positions = boardSize(givenNum)[1],
-		win = boardSize(givenNum)[0],
-		board = {},
-		counter = 0;
 
 	//randomly select key in board;
-	function randomPosition(){
+	function randomPosition() {
 		var x = Math.ceil(Math.random() * givenNum);
 
 		//if the key is unassigned, place value;
 		if (!board[x]) {
 			board[x] = positions.shift();
 			return;
-		}
-		//else try again
-		else {
+		} else {
 			randomPosition();
 		}
 	}//end randomPosition;
 
-	//create a dictionary with keys assigned to a random coordinate;
-	function setBoard(){
+	function compareValues(objA, objB){
+		return (objA[0] === objB[0] && objA[1] === objB[1]);
+	}
+
+
+	//create a board dictionary with keys assigned to a random coordinate;
+	function setBoard() {
 		while (Object.keys(board).length < givenNum)
 			randomPosition();
+
+		//empty space is always last
 		board.empty = positions.shift();
 	}//end setBoard;
 
 
 	//updates the dictionary position of the piece.
-	function movePiece(piece){
+	function movePiece(piece) {
+		//it can move up, down, left, or right
 		var moves = [[0, 1],[0, -1],[1,0],[-1,0]];
 		var newPosition = [];
 
-		for (var pos in moves){
-			var x = [];
-			x.push(parseInt(moves[pos][0]) + parseInt(board[piece][0]));
-			x.push(parseInt(moves[pos][1]) + parseInt(board[piece][1]));
+		//checkout each adjacent square next to the selected piece
+		for (var coordinate in moves) {
+			var x = [moves[coordinate][0] + board[piece][0], moves[coordinate][1] + board[piece][1]];
 			
-			//do the coordiates of the empty space match any of the possible moves?
-			if (board.empty[0] === x[0] && board.empty[1] === x[1]){
+			//do the coordiates of the empty space match any of the adjacent squares?
+			if (compareValues(board.empty, x)) {
 				newPosition = x;
-				counter++;
+				movesCounter++;
 				return newPosition;
 			}
 		}//end for
+
 		return null;
-	};//end movePiece
+	}//end movePiece
 
-	//determine if all the pieces are in the correct position.
+	//determine if all the pieces are in the correct position according the the win dictionary.
 	function calculateWin(){
-		var x = 0;
-		for (var key in board){
-			if (board[key][0] === win[key][0] && board[key][1] === win[key][1]) {
-				x++;
-			}
-			else {
+		for (var key in board) {
+			if (!compareValues(board[key], win[key]))
 				return false;
-			}
 		}
-		if (x == givenNum + 1) {
-			return true;
-		}
-	}
+		return true;
+	}//end calculateWin
 
-	//pretty print the board to the console.
-	function displayBoard(){
-		var boardPrint = [];
+	function displayBoard() {
+		var boardPrint = Object.keys(board);
 
-		//keys are in order. Coordinates are not. Add keys to be printed in the correct coordinates order.
-		for (var winKey in win){
-			for (var key in board){
-				if (board[key][0] === win[winKey][0] && board[key][1] === win[winKey][1])
-					boardPrint.push(key);
-			}
+		//sort the numbers that appear based on their randomly generated coordinate points.
+		boardPrint.sort(function compareCoordinates(keyA, keyB){
+			var cordA = board[keyA][0] + board[keyA][1] * rowSize;
+			var cordB = board[keyB][0] + board[keyB][1] * rowSize;
+			return cordA - cordB;
+		});
+
+		boardPrint.forEach(function(x) {
+			//create an individual square for each number
+			var square = document.createElement('div');
+			square.setAttribute('id', 'square');
+			square.style.width = (100 / rowSize) + '%';
+			square.style.height = (100 / rowSize) + '%';
+			square.style.padding = (100 / rowSize / 4) + '%';
 			
-		}
+			if (x === 'empty')
+				square.setAttribute('class','empty');
 
-		boardPrint.forEach(function(x){
-			var dimensions = Math.sqrt(givenNum + 1);
-			
-			var node = document.createElement('div');
-			node.setAttribute('id', 'square');
-			node.style.width = (100/dimensions) + '%';
-			node.style.height = (100/dimensions) + '%';
-			node.style.padding = (100/dimensions/4) + '%';
-			
-			if (x == 'empty')
-				node.setAttribute('class','empty');
+			//display the key inside of the new square
+			var innerText = document.createTextNode(x);
+			square.appendChild(innerText);
 
-			var textNode = document.createTextNode(x);
-			node.appendChild(textNode);
+			square.addEventListener('click', function(e) {
 
-			node.addEventListener('click', function(e){
+				//if it's possible to move the piece into the empty space, set newPosition;
 				var newPosition = movePiece(this.textContent);
 
-				if (newPosition){
+				if (newPosition) {
+
+					//swap the content of the empty square and the square selected within the tracking dictionary
 					board.empty = board[this.textContent];
 					board[this.textContent] = newPosition;
 
+					//swap the content of the empty square and the square selected for the actual display
 					document.getElementsByClassName('empty')[0].textContent = this.textContent;
 					document.getElementsByClassName('empty')[0].removeAttribute('class');
+					this.setAttribute('class', 'empty');
+					this.textContent = 'empty';
 
-					if(calculateWin()){
-						document.getElementById('moves').textContent = "You won! It took you " + counter + " moves.";
-						//this.setAttribute('class', 'empty');
+					//check if this move triggered a win.
+					if(calculateWin()) {
+						document.getElementById('moves').textContent = 'You won! It took you ' + movesCounter + ' moves.';
 						this.textContent = givenNum + 1;
 						return;
 					} else {
-						document.getElementById('counter').textContent = counter;
+						displayCounter.textContent = movesCounter;
 					}
-					this.setAttribute('class', 'empty');
-					this.textContent = 'empty';
-				} else {
-					console.log("can't go there");
 				}
-				
-				//displayBoard();
 			});
 
-			document.getElementById('game').appendChild(node);
-			
-
-
+			document.getElementById('game').appendChild(square);
 		});
-		var displayCounter = document.createTextNode(counter);
-		document.getElementById('counter').appendChild(displayCounter)
+
+		var displayCounter = document.createTextNode(movesCounter);
+		document.getElementById('counter').appendChild(displayCounter);
 	}
 
-	
 	setBoard();
 	displayBoard();
-	
 }
 
 
-
-playGame(4*4 -1);
-
-
-
-
+playGame(3);
