@@ -24,7 +24,7 @@ let Coordinates = {
 };
 
 //find out where the mouse clicked on the page
-let getPosition function(e, cord){
+let getPosition = function(e, cord){
 	e = e || window.e;
 	let body,
 	doc,
